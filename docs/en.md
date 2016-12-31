@@ -12,10 +12,12 @@ Available functions:
 * pls_delete() - removes the specified placeholders.
 * lang() - to work with lexicon records.
 * email() - send email.
+* email_to() - send email to the specified user.
 * pdotools() - get the pdoTools object.
-* pdofetch - get the pdoFetch object.
+* pdofetch() - get the pdoFetch object.
+* clean - sanitize the string.
 * quote() - quote the string.
-* escape() - escapes the provided string using the platform-specific escape character.
+* esc() - escapes the provided string using the platform-specific escape character.
 * css() - register CSS to be injected inside the HEAD tag of a resource.
 * script() - register JavaScript to be injected inside the HEAD tag or before the closing BODY tag.
 * html() - register HTML to be injected inside the HEAD tag or before the closing BODY tag.
