@@ -222,17 +222,17 @@ if (!function_exists('email')) {
     function email($options = array())
     {
         global $modx;
-        $options['emailSender'] = isset($options['emailSender']) ? $options['emailSender'] : $modx->getOption('emailsender');
-        $options['emailFrom'] = isset($options['emailFrom']) ? $options['emailFrom'] : $modx->getOption('emailsender');
-        $options['emailFromName'] = isset($options['emailFromName']) ? $options['emailFromName'] : $modx->getOption('site_name');
+        $options['sender'] = isset($options['sender']) ? $options['sender'] : $modx->getOption('emailsender');
+        $options['from'] = isset($options['from']) ? $options['from'] : $modx->getOption('emailsender');
+        $options['fromName'] = isset($options['fromName']) ? $options['emailFromName'] : $modx->getOption('site_name');
         /* @var modPHPMailer $mail */
         $mail = $modx->getService('mail', 'mail.modPHPMailer');
         $mail->setHTML(true);
         $mail->set(modMail::MAIL_SUBJECT, $options['subject']);
         $mail->set(modMail::MAIL_BODY, $options['content']);
-        $mail->set(modMail::MAIL_SENDER, $options['emailSender']);
-        $mail->set(modMail::MAIL_FROM, $options['emailFrom']);
-        $mail->set(modMail::MAIL_FROM_NAME, $options['emailFromName']);
+        $mail->set(modMail::MAIL_SENDER, $options['sender']);
+        $mail->set(modMail::MAIL_FROM, $options['from']);
+        $mail->set(modMail::MAIL_FROM_NAME, $options['fromName']);
 
         $mail->address('to', $options['email']);
         if (!$mail->send()) {

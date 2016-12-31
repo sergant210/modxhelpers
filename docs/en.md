@@ -11,7 +11,7 @@ Available functions:
 * pls() - to work with placeholders.
 * pls_delete() - removes the specified placeholders.
 * lang() - to work with lexicon records.
-* mail() - send email.
+* email() - send email.
 * pdotools() - get the pdoTools object.
 * pdofetch - get the pdoFetch object.
 * quote() - quote the string.
