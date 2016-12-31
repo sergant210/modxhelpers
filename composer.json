@@ -1,0 +1,18 @@
+{
+  "name": "sergant210/modxhelpers",
+  "description": "Functions for MODX",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sergey Shlokov",
+      "email": "sergant210@bk.ru",
+      "homepage": "https://modzone.ru"
+    }
+  ],
+  "type": "library",
+  "autoload": {
+    "files": [
+      "src/functions.php"
+    ]
+  }
+}
