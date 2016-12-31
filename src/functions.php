@@ -298,11 +298,30 @@ if (!function_exists('script')) {
     /**
      * Добавляет скрипты на страницу.
      * @param string $src
-     * @param bool $start Добавлять в head.
+     * @param bool|string $start Добавлять в head.
+     * @param bool|string $plaintext
+     * @param bool|string $attr async defer
      */
-    function script($src, $start = false, $plaintext = false)
+    function script($src, $start = false, $plaintext = false, $attr = false)
     {
         global $modx;
+
+        switch (true) {
+            case is_string($start):
+                $attr = $start;
+                $start = false;
+                $plaintext = true;
+                break;
+            case is_string($plaintext):
+                $attr = $plaintext;
+                $plaintext = true;
+                break;
+            case is_string($attr):
+                $plaintext = true;
+                break;
+        }
+        if ($attr) $src = '<script '. $attr .' type="text/javascript" src="' . $src . '"></script>';
+
         if ($start) {
             $modx->regClientStartupScript($src, $plaintext);
         } else {
