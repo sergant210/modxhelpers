@@ -338,6 +338,8 @@ if (!function_exists('html')) {
     function html($src, $start = false)
     {
         $plaintext = true;
+        $start = (bool) $start;
+
         script($src, $start, $plaintext);
     }
 }
@@ -588,10 +590,10 @@ if (!function_exists('is_auth')) {
      * @param string $ctx
      * @return bool True если не авторизован.
      */
-    function is_auth($ctx = 'web')
+    function is_auth($ctx = '')
     {
         global $modx;
-
+        if (empty($ctx)) $ctx = $modx->context->get('key');
         return ($modx->user->id > 0) ? $modx->user->isAuthenticated($ctx) : false;
     }
 }
@@ -634,13 +636,13 @@ if (!function_exists('quote')) {
         return $modx->quote($string, $parameter_type);
     }
 }
-if (!function_exists('escape')) {
+if (!function_exists('esc')) {
     /**
      * Экранирует строку.
      * @param string $string
      * @return string
      */
-    function escape($string)
+    function esc($string)
     {
         global $modx;
 
