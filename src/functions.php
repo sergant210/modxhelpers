@@ -639,7 +639,7 @@ if (!function_exists('object_exists')) {
     {
         global $modx;
         if (is_numeric($criteria)) {
-            $pk = $modx->getPK('$className');
+            $pk = $modx->getPK($className);
             $criteria = array($pk => $criteria);
         }
 
