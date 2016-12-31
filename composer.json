@@ -14,5 +14,6 @@
     "files": [
       "src/functions.php"
     ]
-  }
+  },
+  "minimum-stability": "dev"
 }

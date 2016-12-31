@@ -1,4 +1,4 @@
-Available funcitons:
+Available functions:
 
 * url() - make an url.
 * redirect() - redirect to the url or site page if the id is passed.
