@@ -31,7 +31,7 @@ if (!function_exists('url')) {
 }
 if (!function_exists('redirect')) {
     /**
-     * Редиретит на указанный ресурс
+     * Переадресация на указанный ресурс
      * @param string|int $url Алиас или id ресурса
      * @param array|boolean $options Опции
      * @param string $type
@@ -96,9 +96,9 @@ if (!function_exists('config')) {
 }
 if (!function_exists('session')) {
     /**
-     * Получает или сохраняет значение в сессии
+     * Управляет сессией
      * @param string $key Ключ. Можно указывать ключи через точку.
-     * @param string $value Значение
+     * @param string|null $value Значение или NULL для обнуления.
      * @return mixed
      */
     function session($key = '', $value = '')
@@ -106,8 +106,8 @@ if (!function_exists('session')) {
         if (empty($key)) {
             return $_SESSION;
         }
-
-        if (!empty($value)) {
+        $delete = is_null($value);
+        if (!empty($value) || $delete) {
             $keys = explode('.', $key);
             if (count($keys) == 1) {
                 $rootKey = array_shift($keys);
@@ -124,7 +124,7 @@ if (!function_exists('session')) {
                     $array[$_key] = array();
                     $array = &$array[$_key];
                 }
-                $array[array_shift($keys)] = $value;
+                $array[array_shift($keys)] = $delete ? null : $value;
             }
             return $_SESSION[$rootKey];
         }
@@ -216,12 +216,20 @@ if (!function_exists('pls_delete')) {
 if (!function_exists('email')) {
     /**
      * Отправляет Email.
-     * @param array $options Параметры почты. Обязательные - email, subject, content.
+     * @param string $email Email.
+     * @param string|array $subject Заголовок или массив параметров почты. Обязательные - subject, content.
+     * @param string $content
      * @return bool
      */
-    function email($options = array())
+    function email($email, $subject, $content = '')
     {
         global $modx;
+        if (is_array($subject)) {
+            $options = $subject;
+            $options['email'] = $email;
+        } else {
+            $options = compact('email','subject','content');
+        }
         $options['sender'] = isset($options['sender']) ? $options['sender'] : $modx->getOption('emailsender');
         $options['from'] = isset($options['from']) ? $options['from'] : $modx->getOption('emailsender');
         $options['fromName'] = isset($options['fromName']) ? $options['emailFromName'] : $modx->getOption('site_name');
@@ -242,6 +250,27 @@ if (!function_exists('email')) {
         }
         $mail->reset();
         return true;
+    }
+}
+if (!function_exists('email_user')) {
+    /**
+     * Отправляет Email указанному пользователю.
+     * @param int|string|modUser $user Пользователь.
+     * @param string|array $subject Заголовок или массив параметров. Обязательные - user, subject, content.
+     * @param string $content
+     * @return bool
+     * @internal param array $options Параметры почты. Обязательные - email, subject, content.
+     */
+    function email_user($user, $subject, $content = '')
+    {
+        global $modx;
+        if (is_numeric($user)) {
+            $user = $modx->getObject('modUser', array('id' => (int) $user));
+        } elseif (is_string($user)) {
+            $user = $modx->getObject('modUser', array('id' => (int) $user));
+        }
+        if ($user instanceof modUser) $email = $modx->user->Profile->get('email');
+        return !empty($email) ? email($email, $subject, $content) : false;
     }
 }
 if (!function_exists('pdotools')) {
@@ -338,8 +367,6 @@ if (!function_exists('html')) {
     function html($src, $start = false)
     {
         $plaintext = true;
-        $start = (bool) $start;
-
         script($src, $start, $plaintext);
     }
 }
@@ -478,14 +505,15 @@ if (!function_exists('resource')) {
      * Получает ресурс по ID или условию.
      * @param int|array $criteria ID ресурса или массив для поиска.
      * @param bool $asObject Если TRUE, функция вернёт объект. Иначе массив.
-     * @return array|modResource|bool
+     * @return array|modResource|bool|ObjectManager
      */
     function resource($criteria = null, $asObject = true)
     {
         /** @var ObjectManager $resourceManager */
         $resourceManager = object('modResource', $criteria);
+        if (!isset($criteria)) return $resourceManager;
 
-        return (isset($criteria) && $asObject) ? $resourceManager->get() : $resourceManager->toArray();
+        return $asObject ? $resourceManager->get() : $resourceManager->toArray();
     }
 }
 if (!function_exists('resources')) {
@@ -525,8 +553,9 @@ if (!function_exists('resources')) {
             }
             if ($where) $collection->where($where);
         }
+        if (!isset($criteria)) return $collection;
 
-        return (isset($criteria) && $asObject) ? $collection->get() : $collection->toArray();
+        return $asObject ? $collection->get() : $collection->toArray();
     }
 }
 
@@ -593,6 +622,7 @@ if (!function_exists('is_auth')) {
     function is_auth($ctx = '')
     {
         global $modx;
+
         if (empty($ctx)) $ctx = $modx->context->get('key');
         return ($modx->user->id > 0) ? $modx->user->isAuthenticated($ctx) : false;
     }
@@ -716,8 +746,6 @@ if (!function_exists('user_exists')) {
             foreach ($criteria as $key => $value) {
                 $key = str_replace($fields,$fullFields, $key);
                 $where[$key] = $value;
-//                if (in_array($key, $userFields)) $where['modUser.' . $key] = $value;
-//                if (in_array($key, $profileFields)) $where['Profile.' . $key] = $value;
             }
             $query->where($where);
         }
@@ -761,6 +789,7 @@ if (!function_exists('template_id')) {
         return isset($modx->resource) ? $modx->resource->template : false;
     }
 }
+
 if (!function_exists('tv')) {
     /**
      * Выводит TV текущего ресурса.
@@ -772,5 +801,132 @@ if (!function_exists('tv')) {
         global $modx;
 
         return isset($modx->resource) ? $modx->resource->getTVValue($id) : false;
+    }
+}
+
+if (!function_exists('str_clean')) {
+    /**
+     * Очищает строку от указанных символов
+     *
+     * @param string $str Строка
+     * @param string|array $chars Набор символов для удаления или разрешенные теги.
+     * @param array $allowedTags Разрешенные теги.
+     * @return string Очищенная строка.
+     */
+    function str_clean($str, $chars = '/\'"();><', $allowedTags = array())
+    {
+        if (is_string($chars)) {
+            $chars = str_split($chars);
+        } elseif (is_array($chars)) {
+            $allowedTags = implode('', $chars);
+            $chars = str_split('/\'"();><');
+        }
+        if (!empty($allowedTags) && is_array($allowedTags)) $allowedTags = implode('', $allowedTags);
+
+        return str_replace($chars, '', strip_tags($str, $allowedTags));
+    }
+}
+if (!function_exists('table')) {
+    /**
+     * Выводит название таблицы для указанного класса
+     *
+     * @param string $className Имя класса
+     * @param bool $includeDb Включать в имя таблицы имя базы данных
+     * @return string Название таблицы.
+     */
+    function table($className, $includeDb = false)
+    {
+        global $modx;
+        return $modx->getTableName($className, $includeDb);
+    }
+}
+
+if (!function_exists('columns')) {
+    /**
+     * Колонки таблицы указанного класса
+     *
+     * @param string $className Имя класса
+     * @param string $tableAlias
+     * @param string $columnPrefix
+     * @param array $columns
+     * @param bool $exclude
+     * @return string Колонки.
+     */
+    function columns($className, $tableAlias = '', $columnPrefix = '', $columns = array (), $exclude= false)
+    {
+        global $modx;
+        return $modx->getSelectColumns($className, $tableAlias, $columnPrefix, $columns, $exclude);
+    }
+}
+if (!function_exists('is_email')) {
+    /**
+     * Валидация адреса электронной почты
+     *
+     * @param string
+     * @return bool
+     */
+    function is_email($string)
+    {
+        return preg_match('/^[a-zA-Z0-9_.+-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/',$string);
+    }
+}
+if (!function_exists('is_url')) {
+    /**
+     * Валидация URL
+     *
+     * @param string
+     * @return bool
+     */
+    function is_url($string)
+    {
+        return preg_match('/^((https|http):\/\/)?([a-z0-9]{1})([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/',$string);
+    }
+}
+if (!function_exists('error')) {
+    /**
+     * $modx->log(modX::LOG_LEVEL_ERROR,$message)
+     *
+     * @param string $message
+     * @param bool $changeLevel Change log level
+     */
+    function error($message, $changeLevel = false)
+    {
+        LogManager::error($message, $changeLevel);
+    }
+}
+if (!function_exists('warn')) {
+    /**
+     * $modx->log(modX::LOG_LEVEL_WARN, $message)
+     *
+     * @param string $message
+     * @param bool $changeLevel Change log level
+     */
+    function warn($message, $changeLevel = false)
+    {
+        LogManager::warn($message, $changeLevel);
+    }
+}
+if (!function_exists('info')) {
+    /**
+     * $modx->log(modX::LOG_LEVEL_INFO, $message)
+     *
+     * @param string $message
+     * @param bool $changeLevel Change log level
+     */
+    function info($message, $changeLevel = false)
+    {
+        LogManager::info($message, $changeLevel);
+    }
+}
+if (!function_exists('debug')) {
+    /**
+     * $modx->log(modX::LOG_LEVEL_DEBUG, $message)
+     *
+     * @param string $message
+     * @param bool $changeLevel Change log level
+     */
+    function debug($message, $changeLevel = false)
+    {
+        LogManager::debug($message, $changeLevel);
     }
 }

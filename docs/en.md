@@ -12,7 +12,7 @@ Available functions:
 * pls_delete() - removes the specified placeholders.
 * lang() - to work with lexicon records.
 * email() - send email.
-* email_to() - send email to the specified user.
+* email_user() - send email to the specified user.
 * pdotools() - get the pdoTools object.
 * pdofetch() - get the pdoFetch object.
 * clean - sanitize the string.
@@ -40,3 +40,12 @@ Available functions:
 * object_exists() - checks if the specified object exists.
 * user_exists() - checks if the specified user exists.
 * resource_exists() - checks if the specified resource exists.
+* str_clean() — sanitize the string.
+* table() - gets the table name of the specified class.
+* columns() - gets select columns from a specific class for building a query.
+* is_url() — validates the url.
+* is_email() — validates the email.
+* error() — logs to the error log for the ERROR log level.
+* warn() — logs to the error log for the WARN log level.
+* info() — logs to the error log for the INFO log level.
+* debug() — logs to the error log for the DEBUG log level.
