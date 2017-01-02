@@ -41,7 +41,7 @@ Available functions:
 * user_exists() - checks if the specified user exists.
 * resource_exists() - checks if the specified resource exists.
 * str_clean() — sanitize the string.
-* table() - gets the table name of the specified class.
+* table_name() - gets the table name of the specified class.
 * columns() - gets select columns from a specific class for building a query.
 * is_url() — validates the url.
 * is_email() — validates the email.
@@ -49,3 +49,5 @@ Available functions:
 * warn() — logs to the error log for the WARN log level.
 * info() — logs to the error log for the INFO log level.
 * debug() — logs to the error log for the DEBUG log level.
+* context() - gets the name of the current context.
+* query() - runs the query.
