@@ -50,4 +50,4 @@ Available functions:
 * info() — logs to the error log for the INFO log level.
 * debug() — logs to the error log for the DEBUG log level.
 * context() - gets the name of the current context.
-* query() - runs the query.
+* query() - runs a raw query.

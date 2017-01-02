@@ -383,20 +383,28 @@ class QueryManager
 
     }
 
-    public function bind($bindings = '')
+    public function bind($bindings)
     {
-        if (is_string($bindings)) {
-            $bindings = str_replace(' ','',$bindings);
-            $this->bindings = explode(',', $bindings);
-        } elseif (is_numeric($bindings)) {
-            $this->bindings = array($bindings);
+        if (!empty($bindings)) {
+            if (!is_array($bindings)) {
+                $this->bindings = func_get_args();
+            } else {
+                $this->bindings = $bindings;
+            }
         }
         return $this;
     }
 
     public function execute($bindings = '')
     {
-        if (!empty($bindings)) $this->bind($bindings);
+        if (!empty($bindings)) {
+            if (!is_array($bindings)) {
+                $this->bindings = func_get_args();
+            } else {
+                $this->bindings = $bindings;
+            }
+            $this->bind($bindings);
+        }
         $stmt = $this->modx->prepare($this->query);
         if ($stmt->execute($this->bindings)){
             return $stmt->fetchAll();
@@ -406,7 +414,15 @@ class QueryManager
 
     public function count($bindings = '')
     {
-        if (!empty($bindings)) $this->bind($bindings);
+        if (!empty($bindings)) {
+            if (!is_array($bindings)) {
+                $this->bindings = func_get_args();
+            } else {
+                $this->bindings = $bindings;
+            }
+            $this->bind($bindings);
+        }
+
         $stmt = $this->modx->prepare($this->query);
         if ($stmt->execute($this->bindings)){
             return $stmt->rowCount();
