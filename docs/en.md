@@ -2,6 +2,7 @@ Available functions:
 
 * url() - make an url.
 * redirect() - redirect to the url or site page if the id is passed.
+* forward() - forwards the request to another resource without changing the URL.
 * abort() - redirect to the error page.
 * config() - manage the config settings.
 * session() - manage the session using dot notation.
@@ -51,3 +52,5 @@ Available functions:
 * log_debug() — logs to the error log for the DEBUG log level.
 * context() - gets the name of the current context.
 * query() - runs a raw query.
+* memory() - returns the amount of memory allocated to PHP.
+

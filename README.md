@@ -41,7 +41,7 @@ $resourceArray = resource()->last()->toArray(); // Resource data as array
 $resObjects = resources()->last(10); 
 ```
 
-**Array of the resource pagetitles of the parent with id = 20.**
+**Array of the resource pagetitles of the parent with the id = 20.**
 ```
 $titles= resources()->where(['parent'=>20])->get('pagetitle'); // array('pagetitle 1', 'pagetitle 2', 'pagetitle 3')
 ```
@@ -57,7 +57,7 @@ $value = session('key1.key2');  // $value = $_SESSION['key1']['key2']
 
 **Validates the email**
 ```
-if (is_email($email)) {
+if (is_email($_POST['email'])) {
    // Valid
 }
 ```
