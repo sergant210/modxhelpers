@@ -6,7 +6,8 @@
 - Added "orWhere" method to the collection class.
 - Added "each" method to the collection class.
 - Added "union" method to the collection class.
-- Added an ability to pass a Closure as the argument in the collection functions.
+- Added "members" method to the collection class.
+- Added an ability to pass a Closure to the collection functions.
 
 
 1.0.1-beta

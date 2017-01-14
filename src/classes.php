@@ -251,6 +251,20 @@ class CollectionManager
         $this->query->limit(100);
     }
 
+    public function alias($alias = '')
+    {
+        if (!empty($alias)) {
+            $this->query->setClassAlias($alias);
+            $this->alias = $alias;
+        }
+        return $this;
+    }
+
+    public function setClassAlias($alias = '')
+    {
+        return $this->alias($alias);
+    }
+
     public function toArray($toString = false)
     {
         $data = array();
@@ -540,15 +554,34 @@ class CollectionManager
         $this->addSelect();
         $this->addJoins();
         $this->addWhere($this->query);
-//TODO
+//DEBUGGING
 //log_error($this->query->query);
-        if (empty($this->query->query['columns'])) $this->query->select($this->modx->getSelectColumns($this->class));
+        if (empty($this->query->query['columns'])) $this->query->select($this->modx->getSelectColumns($this->class, $this->alias));
         $this->query->prepare();
         return $this->query->toSQL();
     }
 
+    public function members($group)
+    {
+        if ($this->class == 'modUser') {
+            switch (true) {
+                case is_numeric($group):
+                    $this->query->where(escape($this->alias).'.`id` IN (SELECT `member` FROM ' . table_name('modUserGroupMember') . " WHERE `user_group` = $group)");
+                    break;
+                case is_string($group):
+                    $query = escape($this->alias).'.`id` IN (SELECT `groupMember`.`member` FROM ' . table_name('modUserGroupMember') . ' as `groupMember`' .
+                        ' JOIN ' . table_name('modUserGroup') . ' as `Groups` ON `Groups`.`id` = `groupMember`.`user_group`' .
+                        " WHERE `Groups`.`name` LIKE '$group')";
+                    $this->query->where($query);
+                    break;
+            }
+        }
+
+        return $this;
+    }
+
     /**
-     * Выполняет динамические методы.
+     * Call xPDOQuery methods.
      * @param  string $method
      * @param  array $parameters
      * @return mixed

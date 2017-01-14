@@ -16,7 +16,7 @@ $value = cache('key', 'my_data');
 $value = cache()->get('key', 'my_data');
 ```
 
-**Send email**
+**Send an email**
 ```
 email('pussycat@mail.ru', 'Subject','Email content');
 // To the user
@@ -73,6 +73,29 @@ $count = users()->profile()->where(['Profile.blocked'=>1])->count();
 **Load script with the async attribute**
 ```
 script('/path/to/script.js', 'async'); // <script async type="text/javascript" src="/path/to/script.js"></script>
+```
+**Get an array of users**
+```
+// Can use the prepared query
+$userArray = query('select * from ' . table_name('modUser'). ' WHERE id < ?')->execute(( (int) $_POST['user_id']);
+```
+**Log error to the error log**
+```
+log_error($array); // Convert the array to string using print_r().
+log_error($message, 'HTML'); // Show message on the page.
+```
+**Get the list of the pagetitles**
+```
+return resources()->where(['id:IN'=>children(5)])->each(function($resource, $idx){ return "<li>{$idx}. ".$resource['pagetitle']."</li>";});
+```
+**Get all users which are members of the "Manager" group**
+```
+$usersArray = users()->members('Managers')->toArray();
+// Get all users from "ContentManagers" and "SaleManagers" groups 
+$users = users()->members('%Managers')->get();
+foreach($users as $user) {
+  echo $user->username;
+}
 ```
 
 [Russian documentation](./docs/ru.md)  
