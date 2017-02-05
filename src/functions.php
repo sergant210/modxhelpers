@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/classes.php';
-require_once __DIR__ . '/../vendor/fzaninotto/faker/src/autoload.php';
+require_once __DIR__ . '/../../../fzaninotto/faker/src/autoload.php';
 
 /***********************************************/
 /*              Functions                      */
