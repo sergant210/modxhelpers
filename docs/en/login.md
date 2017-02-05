@@ -10,6 +10,6 @@ login($user):bool
 ```php
 login(4);
 // OR
-$user = user(4);
+$user = user(4); // ~ $modx->getObject('modUser', 4);
 login($user);
 ```

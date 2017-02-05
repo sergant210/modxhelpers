@@ -6,7 +6,10 @@ It's a special class which enhance the base funcitonality of thoe MODX log metho
 * log_info() - logs a message for the info log level.
 * log_debug() - logs a message for the debug log level.
 All these functions have the same arguments.
-```log_error($message, $changeLevel = false, $target = '')```
+
+```
+log_error($message, $changeLevel = false, $target = '')
+```
 - $message (string|array) - a message to log. If the message is an array it will be log via print_r(). 
 - $changeLevel (bool|string) - if true the current log level temporary will be switched to level which set by the corresponding log function. Only for this message. And will bee switched back after. Magic. The third argument (target) can be set here.
 - $target (string) - sets the log target. Available values: '' - for using the current log level, 'FILE' - sends the message to a log file, 'HTML' - sends output to a site page.
