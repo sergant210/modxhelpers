@@ -1172,7 +1172,7 @@ if (!function_exists('logout')) {
      * @param int $code Response code
      * @return bool
      */
-    function logout($redirect = true, $code = 401)
+    function logout($redirect = false, $code = 401)
     {
         global $modx;
         $response = $modx->runProcessor('security/logout');
