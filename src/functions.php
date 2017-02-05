@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/classes.php';
+require_once __DIR__ . '/../vendor/fzaninotto/faker/src/autoload.php';
 
 /***********************************************/
 /*              Functions                      */
@@ -94,19 +95,22 @@ if (!function_exists('abort')) {
 if (!function_exists('config')) {
     /**
      * Gets and sets the system settings
-     * @param string $key
-     * @param null|mixed $value
+     * @param string|array $key
+     * @param null|mixed $default
      * @return array|null|string
      */
-    function config($key = '', $value = NULL)
+    function config($key = '', $default = '')
     {
         global $modx;
         if (!empty($key)) {
-            if (isset($value)) {
-                $modx->config[$key] = $value;
-                return $value;
+            if (is_array($key)) {
+                if (!can('settings')) return false;
+                foreach ($key as $itemKey => $itemValue) {
+                    $modx->config[$itemKey] = $itemValue;
+                }
+                return true;
             }
-            return isset($modx->config[$key]) ? $modx->config[$key] : '';
+            return isset($modx->config[$key]) ? $modx->config[$key] : $default;
         } else {
             return $modx->config;
         }
@@ -172,7 +176,7 @@ if (!function_exists('cache')) {
     function cache($key = '', $options = NULL)
     {
         global $modx;
-        if (empty($key) && empty($options)) {
+        if (func_num_args() == 0) {
             return new extCacheManager($modx->getCacheManager());
         }
         if (is_string($options)) {
@@ -262,20 +266,21 @@ if (!function_exists('pls_delete')) {
 if (!function_exists('email')) {
     /**
      * Send Email.
-     * @param string $email Email.
+     * @param string|array $email Email.
      * @param string|array $subject Subject or an array of options. Required option keys - subject, content. Optional - sender, from, fromName.
      * @param string $content
-     * @return bool
+     * @return bool|modHelperMailer
      */
-    function email($email, $subject, $content = '')
+    function email($email='', $subject='', $content = '')
     {
         global $modx;
+        if (func_num_args() == 0) return new modHelperMailer($modx);
         if (is_array($subject)) {
             $options = $subject;
-            $options['email'] = $email;
         } else {
-            $options = compact('email','subject','content');
+            $options = compact('subject','content');
         }
+        if (empty($email)) return false;
         $options['sender'] = isset($options['sender']) ? $options['sender'] : $modx->getOption('emailsender');
         $options['from'] = isset($options['from']) ? $options['from'] : $modx->getOption('emailsender');
         $options['fromName'] = isset($options['fromName']) ? $options['emailFromName'] : $modx->getOption('site_name');
@@ -287,8 +292,27 @@ if (!function_exists('email')) {
         $mail->set(modMail::MAIL_SENDER, $options['sender']);
         $mail->set(modMail::MAIL_FROM, $options['from']);
         $mail->set(modMail::MAIL_FROM_NAME, $options['fromName']);
+        if (!empty($options['cc'])) $mail->address('cc', $options['cc']);
+        if (!empty($options['bcc'])) $mail->address('bcc', $options['bcc']);
+        if (!empty($options['replyTo'])) $mail->address('reply-to', $options['replyTo']);
+        if (!empty($options['attach'])) {
+            if (is_array($options['attach'])) {
+                foreach ($options['attach'] as $name => $file) {
+                    if (!is_string($name)) $name = '';
+                    $mail->attach($file, $name);
+                }
+            } else {
+                $mail->attach($options['attach']);
+            }
+        }
 
-        $mail->address('to', $options['email']);
+        if (is_array($email)) {
+            foreach ($email as $e) {
+                $mail->address('to', $e);
+            }
+        } else {
+            $mail->address('to', $email);
+        }
         if (!$mail->send()) {
             $modx->log(modX::LOG_LEVEL_ERROR, 'An error occurred while trying to send the email: ' . $mail->mailer->ErrorInfo);
             $mail->reset();
@@ -309,53 +333,20 @@ if (!function_exists('email_user')) {
     function email_user($user, $subject, $content = '')
     {
         global $modx;
-        if (is_numeric($user)) {
-            $user = $modx->getObject('modUser', array('id' => (int) $user));
-        } elseif (is_string($user)) {
-            $user = $modx->getObject('modUser', array('id' => (int) $user));
+        if (!is_array($user)) $user = compact('user');
+        $email = array();
+        foreach ($user as $usr) {
+            if (is_numeric($usr)) {
+                $usr = $modx->getObject('modUser', array('id' => (int)$usr));
+            } elseif (is_string($usr)) {
+                $usr = $modx->getObject('modUser', array('username' => $usr));
+            }
+            if ($usr instanceof modUser && $eml = $usr->Profile->get('email')) $email[] = $eml;
         }
-        if ($user instanceof modUser) $email = $modx->user->Profile->get('email');
         return !empty($email) ? email($email, $subject, $content) : false;
     }
 }
-if (!function_exists('pdotools')) {
-    /**
-     * Gets instance of the pdoTools class
-     * @param array $options
-     * @return pdoTools|boolean
-     */
-    function pdotools($options = array())
-    {
-        global $modx;
-        $fqn = $modx->getOption('pdoTools.class', null, 'pdotools.pdotools', true);
-        if ($pdoClass = $modx->loadClass($fqn, '', false, true)) {
-            return new $pdoClass($modx, $options);
-        }
-        elseif ($pdoClass = $modx->loadClass($fqn, MODX_CORE_PATH . 'components/pdotools/model/', false, true)) {
-            return new $pdoClass($modx, $options);
-        }
-        return false;
-    }
-}
-if (!function_exists('pdofetch')) {
-    /**
-     * * Gets instance of the pdoFetch class
-     * @param array $options
-     * @return pdoFetch|boolean
-     */
-    function pdofetch($options = array())
-    {
-        global $modx;
-        $fqn = $modx->getOption('pdoFetch.class', null, 'pdotools.pdofetch', true);
-        if ($pdoClass = $modx->loadClass($fqn, '', false, true)) {
-            return new $pdoClass($modx, $options);
-        }
-        elseif ($pdoClass = $modx->loadClass($fqn, MODX_CORE_PATH . 'components/pdotools/model/', false, true)) {
-            return new $pdoClass($modx, $options);
-        }
-        return false;
-    }
-}
+
 if (!function_exists('css')) {
     /**
      * Register CSS to be injected inside the HEAD tag of a resource.
@@ -439,32 +430,52 @@ if (!function_exists('chunk')) {
     function chunk($chunkName, array $properties= array ())
     {
         global $modx;
-        if ($pdo = pdotools()) {
-            return $pdo->getChunk($chunkName, $properties);
+        $output = '';
+        //$store = isset($modx->getCacheManager()->store) ? $modx->getCacheManager()->store : array('modChunk'=>array());
+        if (strpos($chunkName, '/') !== false && file_exists($chunkName)) {
+            $content = file_get_contents($chunkName);
+            /** @var modChunk $chunk */
+            $chunk = $modx->newObject('modChunk', array('name' => basename($chunkName)));
+            $chunk->_cacheable = false;
+            $chunk->_processed = false;
+            $chunk->_content = '';
+            $output = $chunk->process($properties, $content);
+            /*        } elseif ($pdo = pdotools()) {
+                        $output = $pdo->getChunk($chunkName, $properties);*/
+        } else {
+            $output = $modx->getChunk($chunkName, $properties);
         }
-        return $modx->getChunk($chunkName, $properties);
+        return $output;
     }
 }
 if (!function_exists('snippet')) {
     /**
-     * Runs the specified snippet.
+     * Runs the specified MODX snippet or file.
      * @param string $snippetName
-     * @param array $params
+     * @param array $scriptProperties
      * @param int|string|array $cacheOptions
      * @return string
      */
-    function snippet($snippetName, array $params= array (), $cacheOptions = array())
+    function snippet($snippetName, array $scriptProperties = array (), $cacheOptions = array())
     {
         $result = cache($snippetName);
         if (isset($result)) {
             return $result;
         }
-
-        if ($pdo = pdotools()) {
-            $result =  $pdo->runSnippet($snippetName, $params);
+        global $modx;
+        if (strpos($snippetName, '/') !== false && file_exists($snippetName)) {
+            ob_start();
+            extract($scriptProperties, EXTR_SKIP);
+            $result = include $snippetName;
+            $result = ($result === null ? '' : $result);
+            if (ob_get_length()) {
+                $result = ob_get_contents() . $result;
+            }
+            ob_end_clean();
+            /*        } elseif ($pdo = pdotools()) {
+                        $result =  $pdo->runSnippet($snippetName, $scriptProperties);*/
         } else {
-            global $modx;
-            $result = $modx->runSnippet($snippetName, $params);
+            $result = $modx->runSnippet($snippetName, $scriptProperties);
         }
         if (!empty($cacheOptions)) {
             cache(array($snippetName => $result), $cacheOptions);
@@ -500,7 +511,7 @@ if (!function_exists('object')) {
         if (isset($criteria)) {
             if (is_numeric($criteria)) {
                 $pk = $modx->getPK($class);
-                $where = array($pk => $criteria);
+                $where = array($pk => (int) $criteria);
             } elseif (is_array($criteria)) {
                 $where = $criteria;
             }
@@ -518,7 +529,7 @@ if (!function_exists('collection')) {
      * @param array $criteria
      * @return CollectionManager
      */
-    function collection($class, $criteria = null)
+    function collection($class = '', $criteria = null)
     {
         global $modx;
         $collection = new CollectionManager($modx, $class);
@@ -538,6 +549,9 @@ if (!function_exists('resource')) {
     function resource($criteria = null, $asObject = true)
     {
         /** @var ObjectManager $resourceManager */
+        if (is_numeric($criteria)) {
+            $criteria = array('id' => (int) $criteria);
+        }
         $resourceManager = object('modResource', $criteria);
         if (!isset($criteria)) return $resourceManager;
 
@@ -590,13 +604,18 @@ if (!function_exists('resources')) {
 if (!function_exists('user')) {
     /**
      * Gets a user object.
-     * @param int|array $criteria User id or array with criteria.
+     * @param int|string|array $criteria User id, username or array.
      * @param bool $asObject True to return an object. Otherwise - an array.
      * @return array|modUser
      */
     function user($criteria = null, $asObject = true)
     {
         /** @var ObjectManager $userManager */
+        if (is_numeric($criteria)) {
+            $criteria = array('id' => (int) $criteria);
+        } elseif (is_string($criteria)) {
+            $criteria = array('username' => $criteria);
+        }
         $userManager = object('modUser', $criteria);
 
         return (isset($criteria) && $asObject) ? $userManager->get() : $userManager->toArray();
@@ -650,7 +669,6 @@ if (!function_exists('is_auth')) {
     function is_auth($ctx = '')
     {
         global $modx;
-
         if (empty($ctx)) $ctx = $modx->context->get('key');
         return ($modx->user->id > 0) ? $modx->user->isAuthenticated($ctx) : false;
     }
@@ -711,13 +729,13 @@ if (!function_exists('object_exists')) {
     /**
      * Checks the object existence
      * @param string $className
-     * @param array $criteria
+     * @param int|string|array $criteria
      * @return bool
      */
     function object_exists($className, $criteria = null)
     {
         global $modx;
-        if (is_numeric($criteria)) {
+        if (is_scalar($criteria)) {
             $pk = $modx->getPK($className);
             $criteria = array($pk => $criteria);
         }
@@ -793,6 +811,16 @@ if (!function_exists('user_id')) {
     {
         global $modx;
         return isset($modx->user) ? $modx->user->id : false;
+    }
+}
+if (!function_exists('res_id')) {
+    /**
+     * Gets id of the current resource.
+     * @return int
+     */
+    function res_id()
+    {
+        return resource_id();
     }
 }
 if (!function_exists('resource_id')) {
@@ -916,10 +944,11 @@ if (!function_exists('log_error')) {
      *
      * @param string $message
      * @param bool $changeLevel Change log level
+     * @param string $target
      */
-    function log_error($message, $changeLevel = false)
+    function log_error($message, $changeLevel = false, $target = '')
     {
-        LogManager::error($message, $changeLevel);
+        LogManager::error($message, $changeLevel, $target);
     }
 }
 if (!function_exists('log_warn')) {
@@ -928,10 +957,11 @@ if (!function_exists('log_warn')) {
      *
      * @param string $message
      * @param bool $changeLevel Change log level
+     * @param string $target
      */
-    function log_warn($message, $changeLevel = false)
+    function log_warn($message, $changeLevel = false, $target = '')
     {
-        LogManager::warn($message, $changeLevel);
+        LogManager::warn($message, $changeLevel, $target);
     }
 }
 if (!function_exists('log_info')) {
@@ -940,10 +970,11 @@ if (!function_exists('log_info')) {
      *
      * @param string $message
      * @param bool $changeLevel Change log level
+     * @param string $target
      */
-    function log_info($message, $changeLevel = false)
+    function log_info($message, $changeLevel = false, $target = '')
     {
-        LogManager::info($message, $changeLevel);
+        LogManager::info($message, $changeLevel, $target);
     }
 }
 if (!function_exists('log_debug')) {
@@ -952,10 +983,11 @@ if (!function_exists('log_debug')) {
      *
      * @param string $message
      * @param bool $changeLevel Change log level
+     * @param string $target
      */
-    function log_debug($message, $changeLevel = false)
+    function log_debug($message, $changeLevel = false, $target = '')
     {
-        LogManager::debug($message, $changeLevel);
+        LogManager::debug($message, $changeLevel, $target);
     }
 }
 if (!function_exists('context')) {
@@ -984,7 +1016,7 @@ if (!function_exists('query')) {
 }
 if (!function_exists('memory')) {
     /**
-     * Gets the used memory
+     * Return the formatted amount of memory allocated to PHP
      * @param string $unit
      * @return string
      */
@@ -1003,5 +1035,171 @@ if (!function_exists('memory')) {
         }
 
         return $value;
+    }
+}
+if (!function_exists('faker')) {
+    $Faker = false;
+    /**
+     * Makes fake data
+     * @see https://github.com/fzaninotto/Faker
+     * @param string|array $property
+     * @param string $locale
+     * @return mixed
+     */
+    function faker($property = '', $locale = '')
+    {
+        global $Faker;
+        if (!$Faker) {
+            if (empty($locale)) {
+                $lang = config('cultureKey');
+                switch ($lang) {
+                    case 'ru':
+                        $locale = 'ru_RU';
+                        break;
+                    case 'de':
+                        $locale = 'de_DE';
+                        break;
+                    case 'fr':
+                        $locale = 'fr_FR';
+                        break;
+                    default:
+                        $locale = 'en_US';
+                }
+            }
+
+            $Faker = \Faker\Factory::create($locale);
+        }
+        if (func_num_args() == 0) return $Faker;
+
+        try {
+            if (is_array($property)) {
+                $func = key($property);
+                $params = current($property);
+                $output = call_user_func_array(array($Faker, $func), $params);
+            } else {
+                $output = $Faker->$property;
+            }
+        } catch (Exception $e) {
+            log_error($e->getMessage());
+            $output = '';
+        }
+
+        return  $output;
+    }
+}
+if (!function_exists('img')) {
+    /**
+     * Returns the HTML tag "img".
+     * @param string $src
+     * @param array $attrs
+     * @return string
+     */
+    function img($src, $attrs = array())
+    {
+        $attributes = '';
+        if (!empty($attrs) && is_array($attrs)) {
+            foreach ($attrs as $k => $v) {
+                $attributes .= $k . '="' . $v . '" ';
+            }
+        }
+        return '<img src="'. $src.'" ' . $attributes . '>';
+    }
+}
+
+if (!function_exists('load_model')) {
+    /**
+     * Load a model for a custom table.
+     * @param string $class Class name.
+     * @param string|callable $table Table name without the prefix or Closure.
+     * @param callable $callback Closure
+     * @return bool
+     */
+    function load_model($class, $table, $callback = NULL)
+    {
+        global $modx;
+        if (func_num_args() == 2 && is_callable($table)) {
+            $callback = $table;
+            $table = '';
+        }
+        $key = strtolower($class) . '_map';
+        if (config('modHelpers_cache_model', true) && $map = cache($key)) {
+            if (!empty($table)) {
+                $modx->map[$class] = $map;
+            } else {
+                $modx->map[$class] = array_merge_recursive($modx->map[$class], $map);
+            }
+            return true;
+        }
+        $model = new modHelperModelBuilder($table);
+        if (is_callable($callback)) {
+            $callback($model);
+            $map = $model->output();
+            if (!empty($map)) {
+                if (!empty($table)) {
+                    $modx->map[$class] = $map;
+                } else {
+                    $modx->map[$class] = array_merge_recursive($modx->map[$class], $map);
+                }
+                if (config('modHelpers_cache_model', true)) cache()->set($key,$map);
+                return true;
+            }
+        }
+        return false;
+    }
+}
+if (!function_exists('login')) {
+    /**
+     * Logs in the specified user.
+     * @param int|modUser $user
+     * @return bool
+     */
+    function login($user)
+    {
+        global $modx;
+        if (is_numeric($user)) $user = user($user);
+        if ($user instanceof modUser) {
+            $modx->user = $user;
+            $modx->user->addSessionContext($modx->context->key);
+            return true;
+        }
+        return false;
+    }
+}
+if (!function_exists('logout')) {
+    /**
+     * Logs out the current user.
+     * @param bool $redirect True to redirect to the unauthorized page.
+     * @param int $code Response code
+     * @return bool
+     */
+    function logout($redirect = true, $code = 401)
+    {
+        global $modx;
+        $response = $modx->runProcessor('security/logout');
+        if ($response->isError()) {
+            $modx->log(modX::LOG_LEVEL_ERROR, 'Logout error of the user: '.$modx->user->get('username').' ('.$modx->user->get('id').').');
+            return false;
+        }
+        $modx->user = $modx->getAuthenticatedUser('mgr');
+        if (!is_object($modx->user) || !$modx->user instanceof modUser) {
+            if ($redirect) abort($code);
+            $modx->user = $modx->newObject('modUser');
+            $modx->user->fromArray(array(
+                'id' => 0,
+                'username' => $modx->getOption('default_username', '', '(anonymous)', true)
+            ), '', true);
+            $modx->toPlaceholders($modx->user->get(array('id','username')),'modx.user');
+        }
+        return true;
+    }
+}
+if (!function_exists('is_ajax')) {
+    /**
+     * Checks request is ajax or not.
+     * @return bool
+     */
+    function is_ajax()
+    {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     }
 }

@@ -14,5 +14,8 @@
     "files": [
       "src/functions.php"
     ]
+  },
+  "require": {
+    "fzaninotto/Faker": "^1.6"
   }
 }
