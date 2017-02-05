@@ -9,14 +9,14 @@ Available functions:
 * [cache()](./en/cache.md) - manage the MODX cache.
 * parents() - gets all of the parent resource ids for a given resource. The short call of ```$modx->getParentIds```.
 * children() - gets all of the child resource ids for a given resource. The short call of ```$modx->getChildIds```.
-* pls() - to work with placeholders.
-* pls_delete() - removes the specified placeholders.
+* [pls()](./en/pls.md) - to work with placeholders.
+* [pls_delete()](./en/pls_delete.md) - removes the specified placeholders.
 * lang() - to work with lexicon records. Can be used instead of ```$modx->lexicon()```.
 * table_name() - gets the table name of the specified class. Can be used instead of ```xPDO::getTableName()```.
 * columns() - gets select columns from a specific class for building a query. Can be used instead of ```xPDO::getSelectColumns()```.
-* email() - send email.
-* email_user() - send email to the specified user.
-* str_clean() - sanitize the string. Wrapper for ```$modx->sanitizeString```
+* [email()](./en/email.md) - send email.
+* [email_user()](./en/email_user.md) - send email to the specified user.
+* [str_clean()](./en/str_clean.md) - sanitize the string. Wrapper for ```$modx->sanitizeString```
 * quote() - quote the string.
 * escape() - escapes the provided string using the platform-specific escape character.
 * css() - register CSS to be injected inside the HEAD tag of a resource.
