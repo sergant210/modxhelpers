@@ -1,6 +1,8 @@
 ##pls()
 Works with placeholders.
+
 ```pls($key = '', $default = '')```
+
 - $key (string|array) - a placeholder to get or an associative array to set.
 - $default (mixed) - Default value if the placeholder does not exist.
 

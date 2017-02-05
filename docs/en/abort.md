@@ -1,4 +1,5 @@
 ##abort()
+Redirects to the error or unauthorized page.
 
 ```abort($options)```
 

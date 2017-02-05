@@ -1,5 +1,6 @@
 ##is_auth()
 Determines if the user is authenticated in a specific context.
+
 ```auth($ctx='')```
 - $ctx (string) - Context key. Optional. If not specified it's used the current context.  
 

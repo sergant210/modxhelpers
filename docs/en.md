@@ -1,12 +1,12 @@
 Available functions:
 
-* url() - make an url. Alias of the method ```$modx->makeUrl()```.
-* redirect() - redirect to the url or site page if the id is passed. Wrapper for ```$modx->redirect```.
-* forward() - forwards the request to another resource without changing the URL. The short call of ```$modx->forward```.
-* [abort()](./en/abort.md) - redirect to the error or unauthorized page.
-* [config()](./en/config.md) - manage the config settings.
-* [session()](./en/session.md) - manage the session using dot notation.
-* [cache()](./en/cache.md) - manage the MODX cache.
+* url() - makes an url. Alias of the method ```$modx->makeUrl()```.
+* redirect() - redirects to the url or site page if the id is passed. Wrapper for ```$modx->redirect```.
+* forward() - to forward the request to another resource without changing the URL. The short call of ```$modx->forward```.
+* [abort()](./en/abort.md) - to redirect to the error or unauthorized page.
+* [config()](./en/config.md) - manages the config settings.
+* [session()](./en/session.md) - manages the session using dot notation.
+* [cache()](./en/cache.md) - manages the MODX cache.
 * parents() - gets all of the parent resource ids for a given resource. The short call of ```$modx->getParentIds```.
 * children() - gets all of the child resource ids for a given resource. The short call of ```$modx->getChildIds```.
 * [pls()](./en/pls.md) - to work with placeholders.
@@ -15,13 +15,13 @@ Available functions:
 * table_name() - gets the table name of the specified class. Can be used instead of ```xPDO::getTableName()```.
 * columns() - gets select columns from a specific class for building a query. Can be used instead of ```xPDO::getSelectColumns()```.
 * [email()](./en/email.md) - send email.
-* [email_user()](./en/email_user.md) - send email to the specified user.
-* [str_clean()](./en/str_clean.md) - sanitize the string. Wrapper for ```$modx->sanitizeString```
-* quote() - quote the string.
+* [email_user()](./en/email_user.md) - sends email to the specified user.
+* [str_clean()](./en/str_clean.md) - sanitizes the string. Wrapper for ```$modx->sanitizeString```
+* quote() - quotes the string.
 * escape() - escapes the provided string using the platform-specific escape character.
-* css() - register CSS to be injected inside the HEAD tag of a resource.
-* [script()](./en/script.md) - register JavaScript to be injected inside the HEAD tag or before the closing BODY tag. Available the script attributes "async" and "defer".
-* [html()](./en/html.md) - register HTML to be injected inside the HEAD tag or before the closing BODY tag.
+* css() - registers CSS to be injected inside the HEAD tag of a resource.
+* [script()](./en/script.md) - registers JavaScript to be injected inside the HEAD tag or before the closing BODY tag. Available the script attributes "async" and "defer".
+* [html()](./en/html.md) - registers HTML to be injected inside the HEAD tag or before the closing BODY tag.
 * chunk() - gets the specified chunk or file. Can be used instead of ```$modx->getChunk()```.
 * [snippet()](./en/snippet.md) - runs the specified snippet from DB or file. The result can be cached.
 * processor() - runs the specified processor. Can be used instead of ```$modx->runProcessor()```.

@@ -1,5 +1,6 @@
 ##img
 Prepares the HTML tag "img".
+
 ```img($src, $attrs = array())```
 - $src (string) - image url. 
 - $attrs (array) - Tag attributes.

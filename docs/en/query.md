@@ -1,5 +1,6 @@
 ##query()
-Runs the specified SQL query.
+Works with raw SQL queries.
+
 ```query($query)```
 - $query - SQL query.   
 

@@ -1,5 +1,6 @@
 ##snippet()
 Runs the specified snippet from DB or file. The result can be cached.
+
 ```snippet($snippetName, $scriptProperties = array (), $cacheOptions = array())```
 - $snippetName (string) - Snippet name. Required.
 - $scriptProperties (array) - Snippet parameters. Optional.
