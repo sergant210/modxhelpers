@@ -1,10 +1,12 @@
 ##login
 Force login the specified user to the current context.
 
-```login($user)```
+```
+login($user):bool
+```
 
 - $user (int|modUser) - User id or modUser object. 
-
+  
 ```php
 login(4);
 // OR
