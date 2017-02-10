@@ -1,7 +1,7 @@
 ## MODX Helpers
 Functions-helpers for MODX. It's made as composer package.
 
-### Install
+### Installation
 1.	Create a plugin which loads composer files.
 ```php
 switch ($modx->event->name) {
