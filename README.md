@@ -2,7 +2,7 @@
 Functions-helpers for MODX. It's made as composer package.
 
 ### Installation
-1.	Create a plugin which loads composer files.
+-	Create a plugin which loads composer files.
 ```php
 switch ($modx->event->name) {
     case 'OnMODXInit':
@@ -14,7 +14,7 @@ switch ($modx->event->name) {
         break;
 }
 ```
-2. Put the composer.json to the *core* folder
+- Put the composer.json to the *core* folder
 ```json
 {
   "repositories": [
@@ -29,7 +29,7 @@ switch ($modx->event->name) {
   }
 }
 ```
-3. Use a terminal tool and run ```composer install``` or ```php composer.phar install``` within the folder *core*.
+- Use a terminal tool and run ```composer install``` or ```php composer.phar install``` within the folder *core*.
 
 ### Examples
 **Check the user exists**
