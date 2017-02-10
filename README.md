@@ -31,6 +31,8 @@ switch ($modx->event->name) {
 ```
 - Use a terminal tool and run ```composer install``` or ```php composer.phar install``` within the folder *core*.
 
+That's all. Now you can use the functions.
+
 ### Examples
 **Check the user exists**
 ```php
