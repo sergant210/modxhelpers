@@ -14,9 +14,9 @@ Available functions:
 * lang() - to work with lexicon records. Can be used instead of ```$modx->lexicon()```.
 * table_name() - gets the table name of the specified class. Can be used instead of ```xPDO::getTableName()```.
 * columns() - gets select columns from a specific class for building a query. Can be used instead of ```xPDO::getSelectColumns()```.
-* [email()](./en/email.md) - send email.
-* [email_user()](./en/email_user.md) - sends email to the specified user.
-* [str_clean()](./en/str_clean.md) - sanitizes the string. Wrapper for ```$modx->sanitizeString```
+* [email()](./en/email.md) - send an email.
+* [email_user()](./en/email_user.md) - sends an email to the specified user.
+* [str_clean()](./en/str_clean.md) - sanitizes the string. Similar to ```$modx->sanitizeString```
 * quote() - quotes the string.
 * escape() - escapes the provided string using the platform-specific escape character.
 * css() - registers CSS to be injected inside the HEAD tag of a resource.

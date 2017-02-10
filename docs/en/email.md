@@ -6,7 +6,7 @@ Send emails.
 - $subject (string|array) - email subject or an array of email options. Magic.
 - $content (string) - email body.
 
-If no arguments are passed the function return an object of the special mailer class which allows to use chain methods.
+If no arguments are passed the function returns an object of the special mailer class which allows to use chains of methods.
 ```php
 # Simple using
 email('user@mail.ru', 'Subject', 'Message body');
