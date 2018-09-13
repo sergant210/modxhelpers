@@ -1,5 +1,5 @@
 ## MODX Helpers
-Functions-helpers for MODX. It's made as composer package.
+Functions-helpers for MODX. It's made as composer package. Depricated. See [modHelpers](https://github.com/sergant210/modHelpers).
 
 ### Installation
 -	Create a plugin which loads composer files.
